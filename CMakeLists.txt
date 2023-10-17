@@ -128,12 +128,6 @@ foreach(CONF IN LISTS KNOWN_CONFIGURATIONS)
     continue()
   endif()
 
-  add_fortran_library(cesm_driver_${CONF} cesm_driver/${CONF}/mod STATIC
-    CMEPS/CMEPS/cesm/driver/esm.F90
-    CMEPS/CMEPS/cesm/driver/ensemble_driver.F90
-    CMEPS/CMEPS/cesm/driver/esm_time_mod.F90
-  )
-
   set(COMPONENTS_TARGETS "")
   if(${CONF} MATCHES MOM6)
     list(APPEND COMPONENTS_TARGETS mom6)
@@ -157,6 +151,11 @@ foreach(CONF IN LISTS KNOWN_CONFIGURATIONS)
   endif()
 
   # We use the CESM driver from CMEPS
+  add_fortran_library(cesm_driver_${CONF} cesm_driver/${CONF}/mod STATIC
+    CMEPS/CMEPS/cesm/driver/esm.F90
+    CMEPS/CMEPS/cesm/driver/ensemble_driver.F90
+    CMEPS/CMEPS/cesm/driver/esm_time_mod.F90
+  )
   target_link_libraries(cesm_driver_${CONF} PUBLIC share ${COMPONENTS_TARGETS} cmeps cdeps_common cdeps_drof esmf PIO::PIO_Fortran)
   target_compile_definitions(cesm_driver_${CONF} PRIVATE MED_PRESENT
                                                          ATM_PRESENT
