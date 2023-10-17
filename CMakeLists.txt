@@ -147,7 +147,9 @@ foreach(CONF IN LISTS KNOWN_CONFIGURATIONS)
   if(${CONF} MATCHES UM)
     list(APPEND COMPONENTS_TARGETS um gcom)
   else()
-    list(APPEND COMPONENTS_TARGETS cdeps_atm)
+    list(APPEND COMPONENTS_TARGETS cdeps_atm cdeps_drof)
+    set(ROF_PRESENT "ROF_PRESENT")
+    set(WAV_PRESENT "WAV_PRESENT")
   endif()
 
   # We use the CESM driver from CMEPS
@@ -156,13 +158,13 @@ foreach(CONF IN LISTS KNOWN_CONFIGURATIONS)
     CMEPS/CMEPS/cesm/driver/ensemble_driver.F90
     CMEPS/CMEPS/cesm/driver/esm_time_mod.F90
   )
-  target_link_libraries(cesm_driver_${CONF} PUBLIC share ${COMPONENTS_TARGETS} cmeps cdeps_common cdeps_drof esmf PIO::PIO_Fortran)
+  target_link_libraries(cesm_driver_${CONF} PUBLIC share ${COMPONENTS_TARGETS} cmeps cdeps_common esmf PIO::PIO_Fortran)
   target_compile_definitions(cesm_driver_${CONF} PRIVATE MED_PRESENT
                                                          ATM_PRESENT
                                                          ICE_PRESENT
                                                          OCN_PRESENT
-                                                         WAV_PRESENT
-                                                         ROF_PRESENT
+                                                         ${WAV_PRESENT}
+                                                         ${ROF_PRESENT}
                                                          $<$<CONFIG:Debug>:DEBUG>
   )
 
