@@ -9,15 +9,16 @@ include(${CMAKE_SOURCE_DIR}/cmake/FortranLib.cmake)
 include(${CMAKE_SOURCE_DIR}/cmake/AddPatchedSource.cmake)
 
 # Configurations to build
-list(APPEND KNOWN_CONFIGURATIONS MOM6 CICE6 WW3 MOM6-CICE6 CICE6-WW3 MOM6-WW3 MOM6-CICE6-WW3)
+list(APPEND KNOWN_CONFIGURATIONS MOM6 CICE6 WW3 MOM6-CICE6 CICE6-WW3 MOM6-WW3 MOM6-CICE6-WW3 UM-MOM6-CICE6)
 
 set(ENABLE_MOM6           OFF CACHE BOOL "Build MOM6 configuration")
 set(ENABLE_CICE6          OFF CACHE BOOL "Build CICE6 configuration")
 set(ENABLE_WW3            OFF CACHE BOOL "Build WW3 configuration")
-set(ENABLE_MOM6-CICE6     ON  CACHE BOOL "Build MOM6-CICE6 configuration")
-set(ENABLE_CICE6-WW3      ON  CACHE BOOL "Build CICE6-WW3 configuration")
+set(ENABLE_MOM6-CICE6     OFF  CACHE BOOL "Build MOM6-CICE6 configuration")
+set(ENABLE_CICE6-WW3      OFF  CACHE BOOL "Build CICE6-WW3 configuration")
 set(ENABLE_MOM6-WW3       OFF CACHE BOOL "Build MOM6-WW3 configuration")
-set(ENABLE_MOM6-CICE6-WW3 ON  CACHE BOOL "Build MOM6-CICE6-WW3 configuration")
+set(ENABLE_MOM6-CICE6-WW3 OFF  CACHE BOOL "Build MOM6-CICE6-WW3 configuration")
+set(ENABLE_UM-MOM6-CICE6  ON  CACHE BOOL "Build MOM6-CICE6-WW3 configuration")
 
 message(STATUS "Configurations")
 message(STATUS "  - MOM6           ${ENABLE_MOM6}")
@@ -27,6 +28,7 @@ message(STATUS "  - MOM6-CICE6     ${ENABLE_MOM6-CICE6}")
 message(STATUS "  - CICE6-WW3      ${ENABLE_CICE6-WW3}")
 message(STATUS "  - MOM6-WW3       ${ENABLE_MOM6-WW3}")
 message(STATUS "  - MOM6-CICE6-WW3 ${ENABLE_MOM6-CICE6-WW3}")
+message(STATUS "  - UM-MOM6-CICE6 ${ENABLE_UM-MOM6-CICE6}")
 
 # Do not build components that are not going to be used
 if(ENABLE_MOM6 OR ENABLE_MOM6-CICE6 OR ENABLE_MOM6-WW3 OR ENABLE_MOM6-CICE6-WW3)
@@ -126,6 +128,12 @@ foreach(CONF IN LISTS KNOWN_CONFIGURATIONS)
     continue()
   endif()
 
+  add_fortran_library(cesm_driver_${CONF} cesm_driver/${CONF}/mod STATIC
+    CMEPS/CMEPS/cesm/driver/esm.F90
+    CMEPS/CMEPS/cesm/driver/ensemble_driver.F90
+    CMEPS/CMEPS/cesm/driver/esm_time_mod.F90
+  )
+
   set(COMPONENTS_TARGETS "")
   if(${CONF} MATCHES MOM6)
     list(APPEND COMPONENTS_TARGETS mom6)
@@ -142,14 +150,14 @@ foreach(CONF IN LISTS KNOWN_CONFIGURATIONS)
   else()
     list(APPEND COMPONENTS_TARGETS cdeps_dwav)
   endif()
+  if(${CONF} MATCHES UM)
+    list(APPEND COMPONENTS_TARGETS um gcom)
+  else()
+    list(APPEND COMPONENTS_TARGETS cdeps_atm)
+  endif()
 
   # We use the CESM driver from CMEPS
-  add_fortran_library(cesm_driver_${CONF} cesm_driver/${CONF}/mod STATIC
-    CMEPS/CMEPS/cesm/driver/esm.F90
-    CMEPS/CMEPS/cesm/driver/ensemble_driver.F90
-    CMEPS/CMEPS/cesm/driver/esm_time_mod.F90
-  )
-  target_link_libraries(cesm_driver_${CONF} PUBLIC share ${COMPONENTS_TARGETS} cmeps cdeps_common cdeps_drof cdeps_datm esmf PIO::PIO_Fortran)
+  target_link_libraries(cesm_driver_${CONF} PUBLIC share ${COMPONENTS_TARGETS} cmeps cdeps_common cdeps_drof esmf PIO::PIO_Fortran)
   target_compile_definitions(cesm_driver_${CONF} PRIVATE MED_PRESENT
                                                          ATM_PRESENT
                                                          ICE_PRESENT
