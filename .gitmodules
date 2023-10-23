@@ -6,7 +6,7 @@
 	url = https://github.com/ESCOMP/CICE
 [submodule "CMEPS/CMEPS"]
 	path = CMEPS/CMEPS
-	url = https://github.com/ESCOMP/CMEPS
+	url = https://github.com/ACCESS-NRI/CMEPS.git
 [submodule "CDEPS/CDEPS"]
 	path = CDEPS/CDEPS
 	url = https://github.com/ESCOMP/CDEPS
