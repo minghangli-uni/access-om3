@@ -19,3 +19,5 @@
 [submodule "WW3/WW3"]
 	path = WW3/WW3
 	url = https://github.com/ESCOMP/WW3
+[submodule "CICE/CICE"]
+	url = https://github.com/ACCESS-NRI/CICE.git
